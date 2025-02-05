@@ -1,6 +1,7 @@
+# image_service/urls.py
 from django.urls import path
-from . import views
+from .views import submit_assessment
 
 urlpatterns = [
-    path('process_image/', views.process_image, name='process_image'),
+    path('submit-assessment/', submit_assessment, name='submit_assessment'),
 ]

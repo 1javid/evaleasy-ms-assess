@@ -1,26 +1,19 @@
 # EvalEasy MS Assess
 
-This microservice is designed to handle image processing tasks. It provides an API endpoint to upload an image and process it using an external service. The microservice is built using Django and can be easily integrated into larger systems.
+This microservice is designed to handle image processing tasks for student assessments. It provides an API endpoint to upload an image of an answer sheet, processes it using an external service, and returns the assessment results. The microservice is built using Django and can be easily integrated into larger systems.
 
 ## Features
 
 - Upload images via a POST request
-- Process images using an external service
-- Return student exam report as a JSON response
+- Process images using an external image processing service
+- Retrieve correct answers from a test microservice
+- Compare student answers with correct answers
+- Compute and return the total score
+- Save assessment results to the database
 
 ## Endpoints
 
-### `POST /api/process_image/`
-
-- **Description**: Upload an image to be processed.
-- **Request**: 
-  - Method: `POST`
-  - Content-Type: `multipart/form-data`
-  - Body: 
-    - `image`: The image file to be processed.
-- **Response**:
-  - Status: `200 OK` if successful, `400 Bad Request` if no image is provided, `405 Method Not Allowed` if the request method is not POST.
-  - Body: JSON response from the external service.
+- `POST /api/submit-assessment/`: Upload an image of an answer sheet and process it to get the assessment results.
 
 ## Requirements
 
@@ -48,14 +41,14 @@ This microservice is designed to handle image processing tasks. It provides an A
 
 4. Run the development server:
     ```sh
-    python manage.py runserver
+    python manage.py runserver 8002
     ```
 
 ## Usage
 
 1. Start the Django development server:
     ```sh
-    python manage.py runserver
+    python manage.py runserver 8002
     ```
 
 2. Use a tool like `curl` or Postman to send a POST request to the `/api/process_image/` endpoint with an image file.
