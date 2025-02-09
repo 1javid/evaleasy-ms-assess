@@ -60,7 +60,7 @@ def submit_assessment(request):
         return JsonResponse({'error': 'Missing required fields in image processing response'}, status=400)
     
     # Step 3: Retrieve correct answers and point weights from the test microservice.
-    test_service_url = f'http://127.0.0.1:8001/api/tests/{assessment_id}/correct_answers/'
+    test_service_url = f'http://127.0.0.1:4000/api/test/tests/{assessment_id}/correct_answers/'
     test_response = requests.get(test_service_url)
     if test_response.status_code != 200:
         return JsonResponse({'error': 'Failed to retrieve correct answers from test microservice'},
@@ -105,7 +105,29 @@ def submit_assessment(request):
     except Exception as e:
         return JsonResponse({'error': 'Invalid student_sheet encoding'}, status=400)
     
-    # Step 6: Save the assessment result to the database.
+    # Step 6: Check if the assessment result already exists in the database.
+    existing_result = AssessmentResult.objects.filter(
+        assessment_id=assessment_id,
+        student_id=student_id,
+        variant=variant
+    ).first()
+    
+    if existing_result:
+        # Step 7: Return the existing assessment result.
+        return JsonResponse({
+            "result_id": existing_result.id,
+            "assessment_id": existing_result.assessment_id,
+            "student_id": existing_result.student_id,
+            "first_name": existing_result.first_name,
+            "last_name": existing_result.last_name,
+            "variant": existing_result.variant,
+            "answers": existing_result.answers,
+            "correct_answers": existing_result.correct_answers,
+            "answer_sheet": student_sheet_b64,
+            "score": existing_result.score
+        }, status=200)
+    
+    # Step 8: Save the new assessment result to the database.
     result = AssessmentResult.objects.create(
         assessment_id=assessment_id,
         student_id=student_id,
@@ -118,9 +140,16 @@ def submit_assessment(request):
         score=total_score
     )
     
-    # Step 7: Return the assessment result.
+    # Step 9: Return the new assessment result.
     return JsonResponse({
         "result_id": result.id,
         "assessment_id": assessment_id,
+        "student_id": student_id,
+        "first_name": first_name,
+        "last_name": last_name,
+        "variant": variant,
+        "answers": student_answers,
+        "correct_answers": correct_answers,
+        "answer_sheet": student_sheet_b64,
         "score": total_score
     }, status=201)
