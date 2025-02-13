@@ -27,26 +27,26 @@ def submit_assessment(request):
     image_data = request.FILES.get('image')
     if not image_data:
         return JsonResponse({'error': 'No image provided'}, status=400)
-    
+
     # Prepare the payload for the external image processing service.
-    files = {'image': (image_data.name, image_data.read(), image_data.content_type)}
+    files = {'file': (image_data.name, image_data.read(), image_data.content_type)}
     image_service_url = 'http://127.0.0.1:5000/process_image'  # Adjust as needed
-    
+
     try:
         external_response = requests.post(image_service_url, files=files)
     except Exception as e:
         return JsonResponse({'error': f'Failed to process image: {str(e)}'}, status=500)
-    
+
     if external_response.status_code != 200:
         return JsonResponse({'error': 'Image processing failed',
-                             'details': external_response.text},
+                            'details': external_response.text},
                             status=external_response.status_code)
-    
+
     try:
         data = external_response.json()
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid response from image processing service'}, status=500)
-    
+        
     # Step 2: Extract required fields from the external service response.
     assessment_id = data.get("assessmentID")
     student_id = data.get("studentID")
